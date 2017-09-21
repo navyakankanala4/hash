@@ -1,214 +1,144 @@
 #include "hash.h"
-unsigned short packet(unsigned char *ip)
-{
-	int key;
-	key=addition_digits(source_bin,dest_bin,s_port,d_port);
-	return key;
-}
-int addition_digits(int source,int dest,int sport,int dport)
-{
-	int res=0,sum;
-	sum=add_individual(source)+res;
-	sum=add_individual(dest)+res;
-	sum=add_individual(sport)+res;
-	sum=add_individual(dport)+res;
-	return res;
-}
 
-int add_individual(long num)
-{
-	long rem,sum=0;
-	while(num>0)
-	{
-		rem=num%10;
-		sum=sum+rem;
-		num=num/10;
-	}
-	return sum;
-}
+/*insertion of packet*/
 
-//void insert(unsigned char ip[16], unsigned short port, unsigned char *htime[], unsigned short protocol, unsigned char ch[])
-void insert_packet(struct packet *ptr, int source_bin,int dest_bin,int s_port,int d_port,char ch[],unsigned short protocol) 
+void insert_packet(void *q)
 {
-	unsigned char index;
-	
-	unsigned char i;
-	unsigned char cmp;
-	struct packet *temp;
-	/*generating the key by adding all source port destination port ,source ip,destination ip*/
-	key= packet(ip);
-	index=key%MAX;
-	/*if the elements are not present in the list*/
-	if(h[index]==NULL)
+	struct packet *ptr=(struct packet *p)
+	int count=0,i,j;
+	int source_bin=inet_addr(ptr->source_ip);
+	int dest_bin=inet_addr(ptr->dest_ip);
+	int s_port=ptr->source_port;
+	int d_port=ptr->dest_port;
+	struct packet *temp,*head,*ptr;
+	int index;
+	index=addition(source_bin,dest_bin,s_port,d_port)%MAX;
+	printf("index %d\n",index);
+	ma[index]=(struct hash *)malloc(sizeof(struct hash));
+	//ifthe index position is empty
+	if(ma[index]==NULL)
 	{
-		/*allocation of memory using malloc */
-		h[index] = (struct packet *) malloc( sizeof(struct packet) );
 		
-		/*if the memory is not allocated still malloc fails*/
-		if(h[index]==NULL)
+		if(ma[index]==NULL)
 		{
 			printf("malloc failed\n");
-			exit(-1);
+			
+			exit(0);
 		}
-		/*storing the index value in temp*/
-		temp = h[index];
-		temp = memset(temp, '\0', sizeof(struct packet));
-		/*differentiating the protocols based on port numbers*/
-		if(protocol == TCP)
-		   temp->protocol = TCP;
-		else if(protocol == UDP)
-		   temp->protocol = UDP;
-		else
-		{
-			printf("\n\nWrong Protocol\n");
-			exit(-1);
-		}
-		/*if the ip is not null then storing the ip value and port numbers and time at which the packet arrived*/
-		for(i=0;i<MAX;i++)
-		{
-	   	   temp->source_ip=source_bin;
-		    temp->dest_ip=dest_bin;
 		
-		temp->source_port=s_port;
-		temp->dest_port=d_port;
-
-		for(i=0;htime[i]!='\0';i++)	
-		   temp->time[i]=htime[i];
-
-		++(temp->count);
-
-		temp->next=NULL;
-		/*storing the data sent by the client*/
-		for(i=0;buf[i]!='\0';i++)
-		   temp->data[i]=ch[i];
-		   temp->data[i]='\0';
-
-		}
+		memset(ma[index],0,sizeof(struct hash));
+		strcpy(ma[index]->info->time,ptr->time);
+		struct hash  *p=ma[index];
+		p->info->source_ip=ptr->source_ip;
+		p->info->dest_ip=ptr->dest_ip;
+		p->info->source_port=ptr->source_port;
+		p->info->dest_port=ptr->dest_port;
+		p->info->protocol=ptr->protocol;
+		p->next=NULL;
+		count++;
+		printf("insertion done\n");
+		printf("source ip:%s\n",p->info->source_ip);
+		printf("destination ip:%s\n",p->info->dest_ip);
+		printf("source port:%d\n",p->info->source_port);
+		printf("destination port:%d\n",p->info->dest_port);
+		printf("protocol:%s\n",p->info->protocol);
+		printf("time stamp at which packet arrived is %s\n",p->info->time);
+		return 0;
 	}
 
 	else
-	{
-		/*if it is not empty*/
-		temp = h[index];
-		temp = memset(temp, '\0', sizeof(struct packet));
-	  while(temp)
-	  {	
-		/*if the ip and protocol are same then just update the time stamp*/
-		if((cmp = strcmp(temp->source_ip,ip))==0 && temp->protocol == protocol &&strcmp(temp->dest_ip,ip)&&temp->source_port==s_port &&
-		temp->dest_port==d_port) 
+	{	
+		/*if the postion is not empty*/
+		while(ma[index]!=NULL)
 		{
-			for(i=0;htime[i]!='\0';i++)	
-		  	 temp->time[i]=htime[i];
-			/*increase the count value after updation*/
-			++(temp->count);
-			
-			/*storing the data sent by the cient*/
-			for(i=0;ch[i]!='\0';i++)
-			   temp->data[i]=ch[i];
-			   temp->data[i]='\0';
-
-			return;
-
-		}
-		
-		else if(temp->next==NULL)
-			break;
-		/*traversing or shifting to next node*/
-		else 
-		temp=temp->next;
-
-	  } // end of while
-
-		if(temp->next==NULL ) 
-		{
-			temp->next = (struct packet *) malloc( sizeof(struct packet) );
-
-			if(temp->next ==NULL)
+			if((ptr->source_ip==p->source_ip)&&(ptr->dest_ip==p->dest_ip)&&(ptr->dest_port==p->dest_port))
 			{
-				printf("malloc failed");
-				exit(-1);
-			}		
-
-			temp=temp->next;
-
-			
-			if(protocol == TCP)
-			   temp->protocol = TCP;
-			else if(protocol == UDP)
-			   temp->protocol = UDP;
-			else
-			{
-				printf("\n\nWrong Protocol ");
-				exit(-1);
+				update_packet(p,packet);
+				count++;
+				return;
 			}
-
-			for(i=0;i<MAX;i++)
-		{
-	   	   temp->source_ip=source_bin;
-		    temp->dest_ip=dest_bin;
-		
-		temp->source_port=s_port;
-		temp->dest_port=d_port;
-
-		for(i=0;htime[i]!='\0';i++)	
-		   temp->time[i]=htime[i];
-
-		++(temp->count);
-
-		temp->next=NULL;
-		/*storing the data sent by the client*/
-		for(i=0;buf[i]!='\0';i++)
-		   temp->data[i]=ch[i];
-		   temp->data[i]='\0';
+			ma[index]=ma[index]->next;
 		}
-		
+		struct hash  *p=ma[index];
+		p=(struct hash *)malloc(sizeof(struct hash));
+		memset(p,0,sizeof(struct hash));
+		strcpy(p->info->time,ptr[time]);
+		p->info=(struct hash *)malloc(sizeof(struct hash)); 
+		p->info->source_ip=ptr->source_ip;
+		p->info->dest_ip=ptr->dest_ip;
+		p->info->source_port=ptr->source_port;
+		p->info->dest_port=ptr->dest_port;
+		p->info->protocol=ptr->protocol;
+		p->next=NULL;
+		count++;
+		printf("insertion done\n");
+		printf("source ip:%s\n",p->info->source_ip);
+		printf("destination ip:%s\n",p->info->dest_ip);
+		printf("source port:%d\n",p->info->source_port);
+		printf("destination port:%d\n",p->info->dest_port);
+		printf("protocol:%s\n",p->info->protocol);
+		printf("time stamp at which packet arrived is %s\n",p->info->time);
+		return 0;
 	}
-		}	//end of if
-
-	}	//end of else 
+}
 
 
-void delete_packet(struct packet *ptr, int source_bin,int dest_bin,int s_port,int d_port,char ch[],unsigned short protocol)
+void update_packet(void *q)
 {
+	ma[index]->info->time=time(NULL);
+	/*updating timestamp*/
+	printf(" updated timestamp=%s",ma[index]->info->time);
+}
+void delete_packet(void *q)
+{
+	struct packet *ptr=struct packet *q;
 	unsigned char cmp;
 	unsigned char index;
 	unsigned char flag=0;
+	char ip_source[SIZE];
 	struct packet *temp, *prev;
 	
-	key= packet(ip);
-	index=key%MAX;
-	temp=h[index];
+	index=addition(source_ip,dest_ip,s_port,d_port)%MAX;
+	temp=ma[index];
 	
 	
 	/**storing the previos location*/
 	prev=temp;
 	/*if the previous location points to null*/
 	if(temp==NULL)
-     	   printf( "no entry present\n" );
+	{
+     	       printf( "no entry present\n" );
+	}
+		printf("enter the source ip address which packet you have to delete\n");
+		scanf(" %s",ip_source);
 	else
 	{
 	   while(temp!=NULL)
 	   {	
+	
 		/*compare the ip and protocol of which  to be deleted and that present in temp*/	
-		if((cmp = strcmp(temp->source_ip,ip))==0 && temp->protocol == protocol &&strcmp(temp->dest_ip,ip)&&temp->source_port==s_port &&
-	temp->dest_port==d_port) 
+		if(ip_source==ptr->source_ip)
 		{
 			prev->next = temp->next;
-			if(h[index] == temp)
-			h[index] = temp->next;
+			if(ma[index] == temp)
+			ma[index] = temp->next;
 			/*now move the index to the next node and free the temp*/
 			temp = memset(temp, '\0', sizeof(struct packet));
-			if(h[index] == temp)
-			h[index] = temp->next;
+			if(ma[index] == temp)
+			ma[index] = temp->next;
 			free(temp);
 			temp=NULL;
-			flag=1;
-			break;
+			ma[index]->source_port=0;
+			ma[index]->dest_port=0;
+			printf("packet successfully deleted\n");
+			
+			
 		}	
 		else 
 		{
 			prev=temp;
 			temp=temp->next;
+			printf("the data entered is invalid\n");
 		} // end of else 
 	   }//end of while
 	}//end of else 
@@ -220,80 +150,31 @@ void delete_packet(struct packet *ptr, int source_bin,int dest_bin,int s_port,in
 
 
 }
-/*function for display*/
-void display()
+
+void lookup_packet(void *q)
 {
-	unsigned short c;
-	unsigned short count;
-	unsigned char flag=0;
-	struct packet *temp;
-
-	for(c=0;c<65535;c++)
-	   if(h[c]!=NULL)
-		flag=1;
-	
-	if(flag==0) 
-	printf("no entry\n" );
-	else
-	{
-	printf("\n hash table");
-	printf("\n\n");
-	for(c=0;c<65535;c++)
-	{
-	   	count=0;
-		temp=h[c];
-	   	
-	   	if(temp==NULL)
-	     	   continue;
-	   	else
-	   	{
-		   printf("\n\nINDEX :%d\n ", c);
-		   while(temp!=NULL)
-		   {		
-			if(temp->protocol == TCP)
-			{
-			printf("ip address of source:%d\n",temp->source_ip);
-			printf("protocol type of source  :%d\n",temp->protocol);
-			printf("time:%s",temp->time);
-			printf("port associated is %d",temp->source_port);
-			printf("ip address of dest:%d\n",temp->dest_ip);
-			printf("port associated is %d",temp->dest_port);
-			printf("packet count is %d",temp->count);
-			}
-			else 
-			{
-			printf("ip address of source:%d\n",temp->source_ip);
-			printf("protocol type of UDP source  :%d\n",temp->protocol);
-			printf("time:%s",temp->time);
-			printf("port associated is %d",temp->source_port);
-			printf("ip address of dest:%d\n",temp->dest_ip);
-			printf("port associated is %d",temp->dest_port);
-			printf("packet count is %d",temp->count);
-			temp=temp->next;
-			}
-		   }
-
-	   	}//end of else 	     
-
-	} // end of for loop
-}
-}
-void lookup_packet(struct packet *ptr,int source_bin,int dest_bin,int s_port,int d_port,char ip[])
-{
+	struct packet *ptr=struct packet *q;
 	int index;
 	int var;
-	char ip1[256];
+	char ip1[SIZE];
 	
 		printf("enter the source ip address\n");
 		scanf("%s",ip1);
+		index=addition(source_ip,dest_ip,s_port,d_port)%MAX;
+		if(ip1==ma[index]->source_ip)
 		
-		if(strcmp(ip1,ip)==0)
-		{
-			index=addition_digits(source_bin,dest_bin,s_port,d_port)%MAX;
-			printf("packet with source address %s found on index %d and port %d\n ",ip,index,d_port);
-		}
+			
+		printf("packet with source address %s found on port %d and data %d\n ",ma[index]->info->source_ip,ma[index]->info->source_port,ma[index]->info->data);
+		
 		else
+		printf("packet not found\n");
 		return;
 
+}
+int addition(int source_ip,int dest_ip,int source_port,int dest_port)
+{
+	int sum;
+	sum=source_ip+dest_ip+source_port+dest_port;
+	return sum;
 }
 

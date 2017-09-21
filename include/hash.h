@@ -12,29 +12,42 @@
 #define TCP 6
 #define UDP 17
 #define SIZE 2048
-int server_sockfd,client_sockfd,vara,serverfd1,clientfd1,result,maxfd,ret,source_bin,source,dest;
-int dest_bin,source1,dest1,server_len,client_len,slen,res,s_port,d_port;	
-struct sockaddr_in server_address,my_addr,client_address,  cli_addr;	
+#define PORT 9732
+#define IP "192.168.131.33"
+int server_sockfd,client_sockfd,var,serverfd1,clientfd1,result,maxfd,ret,source_bin,source,dest;
+	int dest_bin,source1,dest1,server_len,client_len,slen,res,source_port,dest_port;	
+	struct sockaddr_in server_address,my_addr,client_address, cli_addr; 	
 fd_set readfds,testfds;
 int key;
-unsigned char ch[100],ip[100];
-time_t current_time;
 
+time_t current_time;
+/*structure named packet to store all five tupple*/
 struct packet
 {	
-	int source_ip,dest_ip,source_port,dest_port;
-        char data[256];
+	int key;
+	char source_ip[SIZE],dest_ip[SIZE];
+	int source_port,dest_port;
+        char data[SIZE];
 	unsigned short protocol;
-	unsigned char time[30];
-	unsigned short count;
-	struct packet *next;
+	char time[SIZE];
+	
+	//struct packet *next;
 
 }*h[65536],*ptr;
-unsigned char buf[SIZE],*htime;
+struct hash
+{
+struct hash *next;
+struct packet *info;
+char time[SIZE];
+int key;
+};
+struct hash *ma[100];
 
-int addition_digits(int , int ,int , int);
-int add_individual(long );
-void insert_packet(struct packet *, int ,int ,int ,int ,char [],unsigned short );
-void delete_packet(struct packet *, int ,int ,int ,int ,char [],unsigned short );
-void lookup_packet(struct packet *,int ,int ,int ,int ,char [] );
-void display();
+
+
+int addition(int , int ,int , int);
+
+void insert_packet(void *p);
+void delete_packet(void *q);
+void lookup_packet(void *q)
+

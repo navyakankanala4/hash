@@ -1,17 +1,22 @@
 CC=gcc
-CFLAGS=-c -Wall
-LDFLAGS= - L Home/Downloads/Task1/hash.h
-SOURCES= server.c  hash.c
-OBJECTS=$(SOURCES:.c=.o)
-LIB_NAME=hashing
+FLAGS= -I ../include -g
+EXECPATH= ../
+OBJPATH= ../src/
 
-all: $(SOURCES) $(LIB_NAME)
-	    
-$(LIB_NAME): $(OBJECTS)
-	ar rcs $(LIB_NAME) $(OBJECTS)
+default: server clean
 
-.c.o:
-	$(CC) $(CFLAGS) $< -o $@
+server: server.o hash.o
+	$(CC) -o $(EXECPATH)server server.o hash.o  -g
+
+server.o: server.c
+	$(CC) $(FLAGS) -c server.c
+ 
+hash.o: $(OBJPATH)hash.c
+	$(CC) $(FLAGS) -c $(OBJPATH)hash.c
 
 clean:
-	rm -rf $(OBJECTS) $(LIB_NAME)
+	rm -rf server.o hash.o
+
+
+
+
